@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>UZU-HOSTEL Wi-Fi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── Accent ── */
+  --gold:    #D4900A;   /* rich amber */
+  --gold-d:  #A86D04;   /* deep burnt amber */
+
+  /* ── Backgrounds — warm brown → ash blend ── */
+  --bg:  #1A1510;      /* deepest: dark walnut-brown */
+  --s1:  #231D15;      /* card:    warm brown-ash */
+  --s2:  #2D2519;      /* input:   medium warm brown */
+  --s3:  #383020;      /* raised:  khaki-brown */
+
+  /* ── Borders ── */
+  --border:  rgba(200,145,40,.25);   /* warm amber border */
+  --border2: rgba(185,160,110,.14);  /* subtle ash border */
+
+  /* ── Text ── */
+  --text:  #F2E8D5;    /* warm cream */
+  --muted: #9A8A72;    /* ash-brown secondary text */
+  --dim:   #6A5A48;    /* dimmer ash for inactive states */
+
+  /* ── Status ── */
+  --green: #2CB46E;
+  --red:   #E04040;
+}
+
+html, body {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -5%,  rgba(212,144,10,.15) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 10% 100%, rgba(168,109,4,.12)   0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 90% 60%,  rgba(100,80,40,.10)   0%, transparent 50%);
+}
+
+.wrap {
+  position: relative; z-index: 1;
+  min-height: 100dvh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 28px 16px 48px;
+}
+
+/* LOGO */
+.logo { text-align: center; margin-bottom: 28px; }
+.logo-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 60px; height: 60px; border-radius: 16px; margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-d));
+  box-shadow: 0 0 40px rgba(212,144,10,.3);
+  font-size: 26px; font-weight: 900; color: var(--bg);
+}
+.logo h1 { font-size: 21px; font-weight: 800; letter-spacing: -.3px; }
+.logo p  { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+/* CARD */
+.card {
+  width: 100%; max-width: 420px;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 20px 60px rgba(15,10,2,.6), 0 0 0 1px rgba(200,160,80,.06);
+}
+
+/* PROGRESS */
+.prog { display: flex; align-items: center; margin-bottom: 26px; }
+.pdot {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0; transition: all .3s;
+}
+.pdot.done   { background: var(--green); color: #fff; }
+.pdot.active { background: var(--gold); color: var(--bg); box-shadow: 0 0 16px rgba(212,144,10,.5); }
+.pdot.idle   { background: var(--s3); color: var(--muted); border: 1px solid var(--border2); }
+.pline       { flex: 1; height: 1px; background: var(--border2); }
+
+/* FORM ELEMENTS */
+label {
+  display: block;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted);
+  margin-bottom: 5px; margin-top: 16px;
+}
+label:first-of-type { margin-top: 0; }
+
+input[type=tel] {
+  width: 100%; padding: 13px 14px;
+  background: var(--s2); border: 1.5px solid var(--border2);
+  border-radius: 10px; color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px; letter-spacing: .06em;
+  outline: none; -webkit-appearance: none; appearance: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+input[type=tel]:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212,144,10,.12);
+}
+
+/* PACKAGES */
+.pkgs { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 6px; }
+.pkg {
+  background: var(--s2); border: 1.5px solid var(--border2);
+  border-radius: 12px; padding: 13px 8px;
+  cursor: pointer; text-align: center;
+  transition: all .15s; user-select: none;
+}
+.pkg:hover { border-color: rgba(212,144,10,.3); transform: translateY(-1px); }
+.pkg.on    { border-color: var(--gold); background: rgba(212,144,10,.08); box-shadow: 0 0 0 1px rgba(212,144,10,.25); }
+.pkg .d    { font-size: 18px; font-weight: 900; color: var(--gold); }
+.pkg .t    { font-size: 10px; color: var(--muted); margin: 2px 0; }
+.pkg .p    { font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+/* PRIMARY BUTTON */
+.btn {
+  width: 100%; margin-top: 22px; padding: 15px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-d));
+  border: none; border-radius: 12px; color: var(--bg);
+  font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 800;
+  cursor: pointer; transition: opacity .2s, transform .12s;
+  box-shadow: 0 6px 24px rgba(212,144,10,.28);
+}
+.btn:hover   { opacity: .92; transform: translateY(-1px); }
+.btn:active  { transform: translateY(0); }
+.btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+
+/* MOMO INSTRUCTION BOX */
+.momo-box {
+  background: var(--s2); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 20px; text-align: center;
+}
+.momo-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 700; color: var(--gold);
+  letter-spacing: .12em; margin: 6px 0;
+}
+.momo-name { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+.amount-pill {
+  display: inline-block; padding: 6px 20px;
+  background: rgba(212,144,10,.12); border: 1px solid rgba(212,144,10,.3);
+  border-radius: 999px; font-family: 'JetBrains Mono', monospace;
+  font-size: 20px; font-weight: 700; color: var(--gold);
+}
+
+/* STEP LIST */
+.s-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 10px; font-size: 13px;
+  color: rgba(240,225,195,.75); line-height: 1.55;
+}
+.s-num {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(212,144,10,.14); border: 1px solid rgba(212,144,10,.28);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--gold);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* COPY BUTTON */
+.copy-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; margin-top: 14px;
+  background: rgba(212,144,10,.1); border: 1px solid rgba(212,144,10,.25);
+  border-radius: 8px; color: var(--gold);
+  font-size: 12px; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+  cursor: pointer; transition: background .2s;
+}
+.copy-btn:hover { background: rgba(212,144,10,.2); }
+
+/* ──────────────────────────────────────────────
+   UPLOAD ZONE — fully fixed
+   The label wraps the hidden input so ANY tap
+   on the zone (desktop or mobile) opens the
+   file picker.  No JS required for that part.
+   We style the label to look like a dropzone.
+────────────────────────────────────────────── */
+.upload-label {
+  display: block;               /* label fills full width */
+  position: relative;
+  cursor: pointer;
+  margin-top: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+.upload-label input[type=file] {
+  /* Visually hidden but accessible — NOT display:none or visibility:hidden
+     so iOS/Android file picker still opens on tap */
+  position: absolute;
+  width: 1px; height: 1px;
+  opacity: 0; overflow: hidden;
+  left: -9999px;
+}
+.drop-box {
+  border: 2px dashed rgba(212,144,10,.28);
+  border-radius: 14px;
+  background: var(--s2);
+  padding: clamp(24px, 6vw, 40px) 16px;
+  text-align: center;
+  transition: border-color .2s, background .2s;
+}
+.upload-label:hover .drop-box,
+.drop-box.drag {
+  border-color: var(--gold);
+  background: rgba(212,144,10,.05);
+}
+.upload-icon { font-size: 36px; display: block; margin-bottom: 10px; }
+.drop-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.drop-box p  { font-size: 12px; color: var(--muted); }
+
+/* PREVIEW — responsive */
+.preview-wrap { position: relative; margin-top: 14px; }
+.preview-wrap img {
+  display: block;
+  width: 100%;
+  max-height: min(260px, 50vw);   /* shrinks on small phones */
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+}
+.remove-btn {
+  position: absolute; top: 8px; right: 8px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(30,20,8,.85); border: 1px solid rgba(200,160,80,.2);
+  color: #fff; font-size: 14px; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.remove-btn:hover { background: var(--red); }
+
+/* AI SCANNING ANIMATION */
+.scan-wrap { text-align: center; padding: 8px 0; }
+.scan-ring {
+  width: 68px; height: 68px; margin: 0 auto 18px;
+  border: 3px solid rgba(212,144,10,.15);
+  border-top-color: var(--gold); border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.scan-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 6px; }
+.scan-steps { list-style: none; text-align: left; margin-top: 18px; }
+.scan-steps li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid rgba(185,160,110,.14);
+  font-size: 13px; color: var(--muted);
+}
+.scan-steps li:last-child { border: none; }
+.sdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sdot-done   { background: var(--green); }
+.sdot-active { background: var(--gold); animation: pulse 1s ease infinite; }
+.sdot-idle   { background: var(--dim); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* SUCCESS */
+.success { text-align: center; }
+.check-ring {
+  width: 68px; height: 68px; margin: 0 auto 18px; border-radius: 50%;
+  background: rgba(44,180,110,.1); border: 2px solid rgba(44,180,110,.35);
+  display: flex; align-items: center; justify-content: center; font-size: 28px;
+  animation: pop .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.success h2  { font-size: 21px; font-weight: 800; color: var(--green); margin-bottom: 5px; }
+.success .sub { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
+
+/* VOUCHER BOX */
+.vbox {
+  background: var(--s2); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 20px; margin-bottom: 18px;
+  position: relative; overflow: hidden; text-align: left;
+}
+.vbox::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-d));
+}
+.vbox-row { display: grid; grid-template-columns: 1fr 1px 1fr; }
+.vbox-div { background: rgba(200,165,100,.1); }
+.vbox-col { padding: 0 14px; }
+.vbox-col:first-child { padding-left: 0; }
+.vbox-col:last-child  { padding-right: 0; }
+.vlabel { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 3px; }
+.vval   { font-family: 'JetBrains Mono', monospace; color: var(--gold); font-size: 26px; font-weight: 700; letter-spacing: .1em; }
+.vval.sm { font-size: 16px; }
+.vinfo  { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(200,165,100,.1); }
+
+/* RECEIPT DETAIL */
+.receipt-ok {
+  background: rgba(44,180,110,.07); border: 1px solid rgba(44,180,110,.2);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 12px;
+}
+.receipt-ok p { display: flex; justify-content: space-between; padding: 2px 0; color: rgba(240,225,195,.65); }
+.receipt-ok p span { color: var(--green); font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+/* HOW-TO */
+.howto { background: var(--s2); border: 1px solid var(--border2); border-radius: 12px; padding: 16px; text-align: left; }
+.howto-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; }
+
+/* FAILED */
+.failed { text-align: center; }
+.fail-ring {
+  width: 68px; height: 68px; margin: 0 auto 18px; border-radius: 50%;
+  background: rgba(224,64,64,.08); border: 2px solid rgba(224,64,64,.28);
+  display: flex; align-items: center; justify-content: center; font-size: 28px;
+}
+.failed h2 { font-size: 20px; font-weight: 800; color: var(--red); margin-bottom: 8px; }
+.failed p  { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.65; }
+.err-detail {
+  background: rgba(224,64,64,.07); border: 1px solid rgba(224,64,64,.2);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 18px;
+  font-size: 13px; color: #FCA5A5; text-align: left; line-height: 1.6;
+}
+.btn-out {
+  display: inline-block; padding: 12px 28px;
+  background: rgba(212,144,10,.1); border: 1px solid rgba(212,144,10,.3);
+  border-radius: 10px; color: var(--gold);
+  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all .2s;
+}
+.btn-out:hover { background: rgba(212,144,10,.2); }
+
+/* INLINE ERROR */
+.err {
+  margin-top: 10px; padding: 10px 12px;
+  background: rgba(224,64,64,.08); border: 1px solid rgba(224,64,64,.2);
+  border-radius: 8px; font-size: 13px; color: #FCA5A5; display: none;
+}
+
+.back-link {
+  display: block; text-align: center; margin-top: 10px;
+  font-size: 12px; color: var(--muted); cursor: pointer; text-decoration: underline;
+}
+
+/* FOOTER */
+.footer { margin-top: 22px; text-align: center; font-size: 11px; color: var(--muted); line-height: 2; }
+.footer strong { color: var(--gold); }
+
+@media (max-width: 360px) {
+  .pkgs { grid-template-columns: 1fr; }
+  .vval { font-size: 20px; }
+  .card { padding: 18px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- LOGO -->
+  <div class="logo">
+    <div class="logo-icon">U</div>
+    <h1>UZU-HOSTEL Wi-Fi</h1>
+    <p>Pay with MoMo · Get online instantly</p>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       SCREEN 1 — Package + phone number
+  ═══════════════════════════════════ -->
+  <div class="card" id="s-form">
+    <div class="prog">
+      <div class="pdot active">1</div><div class="pline"></div>
+      <div class="pdot idle">2</div><div class="pline"></div>
+      <div class="pdot idle">3</div><div class="pline"></div>
+      <div class="pdot idle">4</div>
+    </div>
+
+    <label>Choose Package</label>
+    <div class="pkgs">
+      <div class="pkg on" data-pkg="3gb" data-price="5.00" onclick="pickPkg(this)">
+        <div class="d">3 GB</div><div class="t">7 days</div><div class="p">GH₵5</div>
+      </div>
+      <div class="pkg" data-pkg="6gb" data-price="9.00" onclick="pickPkg(this)">
+        <div class="d">6 GB</div><div class="t">14 days</div><div class="p">GH₵9</div>
+      </div>
+      <div class="pkg" data-pkg="unlimited" data-price="40.00" onclick="pickPkg(this)">
+        <div class="d">∞</div><div class="t">30 days</div><div class="p">GH₵40</div>
+      </div>
+    </div>
+
+    <label>Your Phone Number</label>
+    <input type="tel" id="inp-phone" placeholder="0208033850" maxlength="10"
+           inputmode="numeric" autocomplete="tel"
+           oninput="this.value=this.value.replace(/\D/g,'')"/>
+
+    <div class="err" id="err-form"></div>
+    <button class="btn" onclick="goToSend()">Next — See Where to Send →</button>
+  </div>
+
+
+  <!-- ═══════════════════════════════════
+       SCREEN 2 — Send money instructions
+  ═══════════════════════════════════ -->
+  <div class="card" id="s-send" style="display:none">
+    <div class="prog">
+      <div class="pdot done">✓</div><div class="pline"></div>
+      <div class="pdot active">2</div><div class="pline"></div>
+      <div class="pdot idle">3</div><div class="pline"></div>
+      <div class="pdot idle">4</div>
+    </div>
+
+    <div class="momo-box">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Send MoMo to <strong style="color:var(--text)">either number below</strong></div>
+
+      <!-- Number 1 -->
+      <div style="background:var(--s3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <div style="text-align:left">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:2px">MTN MoMo</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--gold);letter-spacing:.1em" id="momo-num">0208033850</div>
+          <div style="font-size:11px;color:var(--muted)" id="momo-name">UZU HOSTEL</div>
+        </div>
+        <button class="copy-btn" style="margin-top:0;flex-shrink:0" onclick="copyNum('0208033850','copy1')">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          <span id="copy1">Copy</span>
+        </button>
+      </div>
+
+      <!-- Number 2 -->
+      <div style="background:var(--s3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <div style="text-align:left">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Telecel / AirtelTigo</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--gold);letter-spacing:.1em">0598979254</div>
+          <div style="font-size:11px;color:var(--muted)">UZU HOSTEL</div>
+        </div>
+        <button class="copy-btn" style="margin-top:0;flex-shrink:0" onclick="copyNum('0598979254','copy2')">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          <span id="copy2">Copy</span>
+        </button>
+      </div>
+
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Send exactly</div>
+      <div class="amount-pill" id="send-amt">GH₵ 5.00</div>
+    </div>
+
+    <div style="margin-top:20px">
+      <div class="s-item"><div class="s-num">1</div>Open your MoMo app (MTN / Telecel / AirtelTigo)</div>
+      <div class="s-item"><div class="s-num">2</div>Send <strong id="step-amt" style="color:var(--gold)">GH₵ 5.00</strong> to the number above</div>
+      <div class="s-item"><div class="s-num">3</div>Wait for the <strong>Success</strong> confirmation screen</div>
+      <div class="s-item"><div class="s-num">4</div><strong>Screenshot</strong> that screen, then come back here</div>
+    </div>
+
+    <button class="btn" onclick="show('s-upload')">I've Sent the Money — Upload Screenshot →</button>
+    <span class="back-link" onclick="show('s-form')">← Change package</span>
+  </div>
+
+
+  <!-- ═══════════════════════════════════
+       SCREEN 3 — Upload screenshot
+  ═══════════════════════════════════ -->
+  <div class="card" id="s-upload" style="display:none">
+    <div class="prog">
+      <div class="pdot done">✓</div><div class="pline"></div>
+      <div class="pdot done">✓</div><div class="pline"></div>
+      <div class="pdot active">3</div><div class="pline"></div>
+      <div class="pdot idle">4</div>
+    </div>
+
+    <label>Upload Your MoMo Receipt Screenshot</label>
+
+    <!--
+      FIX: A <label> wrapping the hidden <input type="file"> is the
+      most reliable cross-device way to open the file picker.
+      It works on iOS Safari, Android Chrome, and all desktop browsers
+      without any JavaScript.  The input is visually hidden with
+      position:absolute / opacity:0 (NOT display:none — that breaks
+      iOS) but moved far off-screen so it doesn't occupy layout space.
+    -->
+    <label class="upload-label" id="upload-label">
+      <input type="file" id="file-input"
+             accept="image/jpeg,image/jpg,image/png,image/webp"
+             onchange="fileChosen(this)"/>
+      <div class="drop-box" id="drop-box">
+        <span class="upload-icon">📱</span>
+        <h3>Tap to choose screenshot</h3>
+        <p>JPG · PNG · WebP · max 10 MB</p>
+      </div>
+    </label>
+
+    <!-- Preview — shown after file chosen, hides the drop box -->
+    <div class="preview-wrap" id="preview-wrap" style="display:none">
+      <img id="preview-img" src="" alt="Receipt preview"/>
+      <button class="remove-btn" onclick="removeFile()" aria-label="Remove image">✕</button>
+    </div>
+
+    <div class="err" id="err-upload"></div>
+
+    <button class="btn" id="btn-verify" onclick="submitScreenshot()" disabled>
+      Verify Payment &amp; Get Wi-Fi Code
+    </button>
+    <span class="back-link" onclick="show('s-send')">← Back</span>
+  </div>
+
+
+  <!-- ═══════════════════════════════════
+       SCREEN 4 — AI reading receipt
+  ═══════════════════════════════════ -->
+  <div class="card" id="s-verify" style="display:none">
+    <div class="prog">
+      <div class="pdot done">✓</div><div class="pline"></div>
+      <div class="pdot done">✓</div><div class="pline"></div>
+      <div class="pdot done">✓</div><div class="pline"></div>
+      <div class="pdot active">4</div>
+    </div>
+
+    <div class="scan-wrap">
+      <div class="scan-ring"></div>
+      <div class="scan-label">AI Reading Your Receipt</div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:6px">
+        Checking your screenshot against payment records…
+      </p>
+      <ul class="scan-steps">
+        <li><div class="sdot sdot-active" id="sd1"></div><span id="st1">Reading payment amount…</span></li>
+        <li><div class="sdot sdot-idle"   id="sd2"></div><span id="st2">Checking date &amp; time…</span></li>
+        <li><div class="sdot sdot-idle"   id="sd3"></div><span id="st3">Verifying recipient…</span></li>
+        <li><div class="sdot sdot-idle"   id="sd4"></div><span id="st4">Assigning your Wi-Fi code…</span></li>
+      </ul>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════
+       SCREEN 5 — Success + voucher code
+  ═══════════════════════════════════ -->
+  <div class="card" id="s-success" style="display:none">
+    <div class="success">
+      <div class="check-ring">✓</div>
+      <h2>You're all set!</h2>
+      <p class="sub">Payment verified · Wi-Fi code ready · <strong>Screenshot it!</strong></p>
+
+      <!-- Receipt confirmation -->
+      <div class="receipt-ok" id="receipt-ok"></div>
+
+      <!-- The voucher code -->
+      <div class="vbox">
+        <div class="vbox-row">
+          <div class="vbox-col">
+            <div class="vlabel">Username</div>
+            <div class="vval" id="v-user">XSDG</div>
+          </div>
+          <div class="vbox-div"></div>
+          <div class="vbox-col">
+            <div class="vlabel">Password / PIN</div>
+            <div class="vval" id="v-pin">3544</div>
+          </div>
+        </div>
+        <div class="vinfo">
+          <div class="vlabel">Package</div>
+          <div class="vval sm" id="v-pkg">3GB — 7 Days</div>
+          <div class="vlabel" style="margin-top:10px">Valid Until</div>
+          <div class="vval sm" id="v-exp">25 Mar 2026</div>
+        </div>
+      </div>
+
+      <!-- Copy button -->
+      <button class="copy-btn" onclick="copyVoucher()"
+              style="width:100%;justify-content:center;padding:11px">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+        </svg>
+        <span id="copy-v-txt">Copy Code</span>
+      </button>
+
+      <!-- How to connect -->
+      <div class="howto" style="margin-top:18px">
+        <div class="howto-head">How to connect now</div>
+        <div class="s-item"><div class="s-num">1</div>Open any browser — the login page appears automatically</div>
+        <div class="s-item"><div class="s-num">2</div>Enter your <strong style="color:var(--gold)">Username</strong> and <strong style="color:var(--gold)">PIN</strong></div>
+        <div class="s-item"><div class="s-num">3</div>Tap <strong>Login</strong> — you're online! 🚀</div>
+        <div class="s-item"><div class="s-num">💡</div>Use the same code to reconnect anytime until expiry</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════
+       SCREEN 6 — Verification failed
+  ═══════════════════════════════════ -->
+  <div class="card" id="s-failed" style="display:none">
+    <div class="failed">
+      <div class="fail-ring">✕</div>
+      <h2>Verification Failed</h2>
+      <div class="err-detail" id="fail-reason">The screenshot could not be verified.</div>
+      <p>Please read the reason above, then try again with a clear screenshot of your success screen.</p>
+      <button class="btn-out" onclick="retryUpload()">Try Again</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>UZU-HOSTEL Wi-Fi · Built by <strong>CyberGuy</strong></div>
+    <div>Need help? Visit <strong>Room 57, 4th Floor</strong></div>
+    <div>WhatsApp: <strong>0208033850</strong> · <strong>0598979254</strong></div>
+  </div>
+</div><!-- .wrap -->
+
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────
+const API = window.location.origin;   // same server serves the portal and API
+
+// ─── State ────────────────────────────────────────────
+let pkg    = "3gb";
+let price  = "5.00";
+let phone  = "";
+let imgFile = null;
+let verifyInFlight = false;   // prevents double-submit
+
+// ─── Screen helper ────────────────────────────────────
+function show(id) {
+  ["s-form","s-send","s-upload","s-verify","s-success","s-failed"]
+    .forEach(sid => {
+      const el = document.getElementById(sid);
+      if (el) el.style.display = (sid === id) ? "" : "none";
+    });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ─── Package picker ───────────────────────────────────
+function pickPkg(el) {
+  document.querySelectorAll(".pkg").forEach(c => c.classList.remove("on"));
+  el.classList.add("on");
+  pkg   = el.dataset.pkg;
+  price = el.dataset.price;
+}
+
+// ─── Step 1 → 2 ──────────────────────────────────────
+async function goToSend() {
+  const ph = document.getElementById("inp-phone").value.trim();
+  if (!/^0[0-9]{9}$/.test(ph)) {
+    showErr("err-form", "Please enter a valid 10-digit Ghana number starting with 0");
+    return;
+  }
+  phone = ph;
+  document.getElementById("err-form").style.display = "none";
+
+  // Fetch amount from server (numbers are already shown hardcoded)
+  try {
+    const r = await fetch(`${API}/api/payment-info?package_id=${pkg}`);
+    if (r.ok) {
+      const d = await r.json();
+      const amt = `GH₵ ${d.amount.toFixed(2)}`;
+      document.getElementById("send-amt").textContent = amt;
+      document.getElementById("step-amt").textContent = amt;
+    }
+  } catch (_) {
+    const amt = `GH₵ ${parseFloat(price).toFixed(2)}`;
+    document.getElementById("send-amt").textContent = amt;
+    document.getElementById("step-amt").textContent = amt;
+  }
+
+  show("s-send");
+}
+
+// ─── File chosen from picker ──────────────────────────
+function fileChosen(input) {
+  if (!input.files || !input.files[0]) return;
+  const f = input.files[0];
+
+  // 10 MB client-side guard
+  if (f.size > 10 * 1024 * 1024) {
+    showErr("err-upload", "File is too large (max 10 MB). Please compress or crop the screenshot.");
+    return;
+  }
+
+  imgFile = f;
+  const url = URL.createObjectURL(f);
+  const img = document.getElementById("preview-img");
+  img.onload = () => URL.revokeObjectURL(url);  // free memory after load
+  img.src = url;
+
+  document.getElementById("drop-box").style.display    = "none";
+  document.getElementById("preview-wrap").style.display = "";
+  document.getElementById("btn-verify").disabled = false;
+  document.getElementById("err-upload").style.display = "none";
+}
+
+// ─── Remove chosen file ───────────────────────────────
+function removeFile() {
+  imgFile = null;
+  document.getElementById("file-input").value = "";
+  document.getElementById("preview-wrap").style.display = "none";
+  document.getElementById("drop-box").style.display     = "";
+  document.getElementById("btn-verify").disabled = true;
+}
+
+// ─── Drag-and-drop on desktop ─────────────────────────
+(function () {
+  const box = document.getElementById("drop-box");
+  box.addEventListener("dragover",  e => { e.preventDefault(); box.classList.add("drag"); });
+  box.addEventListener("dragleave", ()  => box.classList.remove("drag"));
+  box.addEventListener("drop", e => {
+    e.preventDefault();
+    box.classList.remove("drag");
+    const f = e.dataTransfer.files[0];
+    if (f) {
+      // Inject file into the hidden input, then call fileChosen
+      const dt = new DataTransfer();
+      dt.items.add(f);
+      document.getElementById("file-input").files = dt.files;
+      fileChosen({ files: [f] });
+    }
+  });
+})();
+
+// ─── Submit screenshot to server ─────────────────────
+async function submitScreenshot() {
+  if (!imgFile) { showErr("err-upload", "Please select a screenshot first."); return; }
+  if (verifyInFlight) return;   // prevent double-submit
+
+  verifyInFlight = true;
+  document.getElementById("btn-verify").disabled = true;
+
+  show("s-verify");
+  startScanAnimation();   // purely cosmetic progress animation
+
+  const fd = new FormData();
+  fd.append("phone",      phone);
+  fd.append("package_id", pkg);
+  fd.append("screenshot", imgFile, imgFile.name);
+
+  try {
+    const r = await fetch(`${API}/api/verify-screenshot`, { method: "POST", body: fd });
+    const d = await r.json();
+
+    if (!r.ok) {
+      showFailed(d.detail || "Verification failed. Please try again.");
+    } else {
+      showSuccess(d);
+    }
+  } catch (_) {
+    showFailed("Network error. Please check your connection and try again.");
+  } finally {
+    verifyInFlight = false;
+  }
+}
+
+// ─── Scan animation (purely cosmetic) ────────────────
+function startScanAnimation() {
+  const steps = [
+    ["sd1","st1","Reading payment amount…"],
+    ["sd2","st2","Checking date & time…"],
+    ["sd3","st3","Verifying recipient…"],
+    ["sd4","st4","Assigning your Wi-Fi code…"],
+  ];
+  // Reset all dots first
+  steps.forEach(([dotId]) => {
+    document.getElementById(dotId).className = "sdot sdot-idle";
+  });
+  document.getElementById("sd1").className = "sdot sdot-active";
+
+  steps.forEach(([dotId, txtId, txt], i) => {
+    if (i === 0) return;  // already set above
+    setTimeout(() => {
+      document.getElementById(steps[i-1][0]).className = "sdot sdot-done";
+      document.getElementById(steps[i-1][1]).style.color = "var(--green)";
+      document.getElementById(dotId).className = "sdot sdot-active";
+    }, i * 1800);
+  });
+}
+
+// ─── Show success screen ──────────────────────────────
+function showSuccess(d) {
+  const v = d.voucher_code;
+  document.getElementById("v-user").textContent = v.username;
+  document.getElementById("v-pin").textContent  = v.pin;
+  document.getElementById("v-pkg").textContent  = d.package || "—";
+  document.getElementById("v-exp").textContent  = d.expiry  || "—";
+
+  const r = d.receipt || {};
+  document.getElementById("receipt-ok").innerHTML =
+    `<p>Reference  <span>${r.reference || "—"}</span></p>
+     <p>Amount paid <span>GH₵ ${(r.amount || 0).toFixed(2)}</span></p>
+     <p>Receipt date <span>${r.date || "—"}</span></p>
+     <p>Network     <span>${r.network || "—"}</span></p>`;
+
+  show("s-success");
+}
+
+// ─── Show failed screen ───────────────────────────────
+function showFailed(reason) {
+  document.getElementById("fail-reason").textContent = reason;
+  show("s-failed");
+}
+
+// ─── Retry — go back to upload screen ────────────────
+function retryUpload() {
+  removeFile();
+  document.getElementById("btn-verify").disabled = true;
+  show("s-upload");
+}
+
+// ─── Copy number helper (works for both MoMo numbers) ──
+function copyNum(number, spanId) {
+  navigator.clipboard.writeText(number).then(() => {
+    const el = document.getElementById(spanId);
+    el.textContent = "Copied ✓";
+    setTimeout(() => el.textContent = "Copy", 2000);
+  });
+}
+
+function copyVoucher() {
+  const u = document.getElementById("v-user").textContent;
+  const p = document.getElementById("v-pin").textContent;
+  const k = document.getElementById("v-pkg").textContent;
+  const e = document.getElementById("v-exp").textContent;
+  navigator.clipboard.writeText(
+    `UZU-HOSTEL Wi-Fi\nUsername: ${u}\nPIN: ${p}\nPackage: ${k}\nExpires: ${e}`
+  ).then(() => {
+    const el = document.getElementById("copy-v-txt");
+    el.textContent = "Copied! ✓";
+    setTimeout(() => el.textContent = "Copy Code", 2500);
+  });
+}
+
+// ─── Inline error helper ──────────────────────────────
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = "block";
+}
+</script>
+</body>
+</html>
